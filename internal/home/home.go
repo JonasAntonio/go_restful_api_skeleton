@@ -2,10 +2,11 @@ package home
 
 import (
 	"net/http"
+	"restful-api/api/v1/helpers"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Home(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "ok"})
+	helpers.Respond(c, http.StatusOK, "Home sweet home", gin.H{"testing": "this"})
 }
