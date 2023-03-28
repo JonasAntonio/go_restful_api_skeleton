@@ -7,5 +7,5 @@ import (
 )
 
 func Home(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, gin.H{"Meus": "ovo"})
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "ok"})
 }

@@ -6,11 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetRoutes() *gin.Engine {
+func Routes() *gin.Engine {
 	router := gin.Default()
 
 	router.GET("/", home.Home)
-	router.GET("/a", home.Home)
 
 	return router
 }
