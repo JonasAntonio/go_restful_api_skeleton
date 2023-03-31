@@ -22,6 +22,7 @@ func New() Server {
 
 func Run() {
 	server := New()
+	server.Router.Use(gin.Recovery())
 	server.Routes()
 
 	SetCors(server.Router)

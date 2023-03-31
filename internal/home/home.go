@@ -8,5 +8,5 @@ import (
 )
 
 func Home(c *gin.Context) {
-	helpers.Respond(c, http.StatusOK, "Home sweet home", gin.H{"testing": "this"})
+	helpers.Respond(c, http.StatusOK, "Home sweet home")
 }
