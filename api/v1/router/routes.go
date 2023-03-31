@@ -2,14 +2,26 @@ package router
 
 import (
 	home "restful-api/internal/home"
+	login "restful-api/internal/login"
 
 	"github.com/gin-gonic/gin"
 )
 
-func Routes() *gin.Engine {
-	router := gin.Default()
+var router *gin.Engine = nil
 
-	router.GET("/", home.Home)
+func GetInstance() *gin.Engine {
+	if router == nil {
+		router = gin.Default()
+	}
+
+	return router
+}
+
+func Routes() *gin.Engine {
+	router := GetInstance()
+
+	router.GET("/v1", home.Home)
+	router.POST("/v1/login", login.Login)
 
 	return router
 }
