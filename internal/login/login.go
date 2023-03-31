@@ -2,7 +2,7 @@ package login
 
 import (
 	"net/http"
-	"restful-api/api/v1/auth"
+	"restful-api/api/v1/helpers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +21,9 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, err := auth.MakeJWT(credentials.ClientId)
+	// TODO validate credentials
+
+	token, err := helpers.MakeJWT(credentials.ClientId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

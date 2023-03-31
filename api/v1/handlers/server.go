@@ -1,18 +1,32 @@
 package handlers
 
 import (
-	routes "restful-api/api/v1/router"
+	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
+type Server struct {
+	basePath string
+	Router   *gin.Engine
+}
+
+func New() Server {
+	server := Server{}
+	server.Router = gin.Default()
+	server.basePath = server.Router.BasePath()
+
+	return server
+}
+
 func Run() {
-	router := routes.Routes()
+	server := New()
+	server.Routes()
 
-	SetCors(router)
+	SetCors(server.Router)
 
-	router.Run("localhost:8080")
+	server.Router.Run(os.Getenv("URL"))
 }
 
 func SetCors(router *gin.Engine) {

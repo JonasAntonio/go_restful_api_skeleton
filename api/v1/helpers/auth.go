@@ -1,7 +1,7 @@
-package auth
+package helpers
 
 import (
-	// "restful-api/api/v1/router"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -15,12 +15,12 @@ var secret = []byte("signatureKey")
 func MakeJWT(sub string) (string, error) {
 	now := time.Now()
 	token := jwt.New(jwt.SigningMethodHS512)
-	// router := router.GetInstance()
 	claims := token.Claims.(jwt.MapClaims)
+	baseURL := os.Getenv("URL")
 
 	claims["sub"] = sub
-	// claims["iss"] = router.BasePath()
-	// claims["aud"] = router.BasePath()
+	claims["iss"] = baseURL
+	claims["aud"] = baseURL
 	claims["jti"] = uuid.New()
 	claims["iat"] = now
 	claims["nbf"] = now
