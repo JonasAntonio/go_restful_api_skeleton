@@ -8,6 +8,7 @@ type Response struct {
 	Data    any    `json:"data,omitempty"`
 }
 
+// Writes a JSON response
 func Respond(c *gin.Context, status int, message string, data ...any) {
 	payload := Response{
 		Error:   status > 399,
