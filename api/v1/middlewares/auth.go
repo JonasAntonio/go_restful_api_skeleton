@@ -1,10 +1,10 @@
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
 	"restful-api/api/v1/helpers"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
@@ -13,42 +13,59 @@ import (
 var secret = []byte("signatureKey")
 
 func ValidateJWT(c *gin.Context) {
-	tokenString := getAuthorization(c)
-
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("There was an error in parsing")
-		}
+	claims := &helpers.Claims{}
+	token, err := jwt.ParseWithClaims(getAuthorization(c), claims, func(t *jwt.Token) (interface{}, error) {
 		return secret, nil
 	})
 
 	if err != nil {
-		helpers.Respond(c, http.StatusForbidden, err.Error())
-		c.Abort()
-		return
-	}
-
-	// claims, ok := token.Claims.(jwt.MapClaims)
-	_, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		helpers.Respond(c, http.StatusForbidden, "Access denied")
-		c.Abort()
+		c.AbortWithStatusJSON(http.StatusUnauthorized,
+			gin.H{
+				"error":   true,
+				"message": "Access denied",
+			})
 		return
 	}
 
 	if !token.Valid {
-		helpers.Respond(c, http.StatusForbidden, "Invalid token")
-		c.Abort()
+		c.AbortWithStatusJSON(http.StatusUnauthorized,
+			gin.H{
+				"error":   true,
+				"message": "Invalid token",
+			})
 		return
 	}
 
+	validateClaims(c, claims)
+
+	// tokenClaims, ok := token.Claims.(jwt.MapClaims)
+	// if !ok {
+	// 	c.AbortWithStatusJSON(http.StatusUnauthorized,
+	// 		gin.H{
+	// 			"error":   true,
+	// 			"message": "Access denied 1",
+	// 		})
+	// 	return
+	// }
+
 	// TODO validate claimns
 
-	c.Next()
+	// c.Next()
 }
 
 func getAuthorization(c *gin.Context) string {
 	authorization := c.Request.Header["Authorization"][0]
-	authorization = strings.Replace("Bearer ", authorization, "", -1)
+	authorization = strings.Replace(authorization, "Bearer ", "", -1)
 	return authorization
+}
+
+func validateClaims(c *gin.Context, claims *helpers.Claims) {
+	if !claims.VerifyExpiresAt(time.Now(), false) {
+		c.AbortWithStatusJSON(http.StatusUnauthorized,
+			gin.H{
+				"error":   true,
+				"message": "Token is expired",
+			})
+		return
+	}
 }

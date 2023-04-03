@@ -8,23 +8,30 @@ import (
 	"github.com/google/uuid"
 )
 
-const EXPIRATION_TIME = 15
+const EXPIRATION_TIME = 1
 
 var secret = []byte("signatureKey")
 
+type Claims struct {
+	jwt.RegisteredClaims
+}
+
 func MakeJWT(sub string) (string, error) {
 	now := time.Now()
-	token := jwt.New(jwt.SigningMethodHS512)
-	claims := token.Claims.(jwt.MapClaims)
 	baseURL := os.Getenv("URL")
+	claims := &Claims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        uuid.NewString(),
+			Subject:   sub,
+			Issuer:    baseURL,
+			Audience:  jwt.ClaimStrings{baseURL},
+			IssuedAt:  jwt.NewNumericDate(now),
+			NotBefore: jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(now.Add(EXPIRATION_TIME * time.Minute)),
+		},
+	}
 
-	claims["sub"] = sub
-	claims["iss"] = baseURL
-	claims["aud"] = baseURL
-	claims["jti"] = uuid.New()
-	claims["iat"] = now
-	claims["nbf"] = now
-	claims["exp"] = now.Add(EXPIRATION_TIME * time.Minute)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 
 	tokenString, err := token.SignedString(secret)
 
